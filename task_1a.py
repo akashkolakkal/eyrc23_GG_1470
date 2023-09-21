@@ -15,8 +15,8 @@
 *****************************************************************************************
 '''
 
-# Team ID:			[ Team-ID ]
-# Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
+# Team ID:			gg_1470
+# Author List:		Akash Kolakal, Anikesh Kulal, Parth jain, Keshav Jha
 # Filename:			task_1a.py
 # Functions:	    [`ideantify_features_and_targets`, `load_as_tensors`,
 # 					 `model_loss_function`, `model_optimizer`, `model_number_of_epochs`, `training_function`,
@@ -74,6 +74,12 @@ def data_preprocessing(task_1a_dataframe):
 	'''
 
 	#################	ADD YOUR CODE HERE	##################
+	
+	encoded_dataframe = pandas.get_dummies(task_1a_dataframe, columns=["Education", "City", "Gender", "EverBenched"])
+	
+	encoded_dataframe['JoiningYear'] = task_1a_dataframe['JoiningYear'] - 2000
+
+
 
 	##########################################################
 
