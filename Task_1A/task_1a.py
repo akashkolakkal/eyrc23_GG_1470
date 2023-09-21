@@ -16,7 +16,7 @@
 '''
 
 # Team ID:			gg_1470
-# Author List:		[ Names of team members worked on this file separated by Comma: Name1, Name2, ... ]
+# Author List:		Akash Kolakal, Anikesh Kulal, Parth jain, Keshav Jha
 # Filename:			task_1a.py
 # Functions:	    [`ideantify_features_and_targets`, `load_as_tensors`,
 # 					 `model_loss_function`, `model_optimizer`, `model_number_of_epochs`, `training_function`,
