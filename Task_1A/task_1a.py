@@ -33,6 +33,8 @@ torch, matplotlib or sklearn.
 You are NOT allowed to import any other libraries. It will 
 cause errors while running the executable
 '''
+from torch.utils.data import TensorDataset, DataLoader
+
 ##############################################################
 
 ################# ADD UTILITY FUNCTIONS HERE #################
@@ -112,6 +114,13 @@ def identify_features_and_targets(encoded_dataframe):
 	'''
 
 	#################	ADD YOUR CODE HERE	##################
+
+	encoded_dataframe = encoded_dataframe.sample(frac = 1, random_state = 3)
+
+	target_col = encoded_dataframe['LeaveOrNot']
+	feature_cols = encoded_dataframe.drop('LeaveOrNot', axis = 1)
+
+	features_and_targets = [feature_cols, target_col]
 	
 	##########################################################
 
@@ -154,6 +163,26 @@ def load_as_tensors(features_and_targets):
 
 	#################	ADD YOUR CODE HERE	##################
 	
+	split = int(features_and_targets[0].shape[0] * 0.8)
+	
+	X_train_df, X_test_df = features_and_targets[0].iloc[: split], features_and_targets[0].iloc[split:]
+
+	Y_train_df, Y_test_df = features_and_targets[1].iloc[: split], features_and_targets[1].iloc[split:]
+
+	X_train_tensor = torch.tensor(X_train_df.values)
+	X_test_tensor = torch.tensor(X_test_df.values)
+	Y_train_tensor = torch.tensor(Y_train_df.values)
+	Y_test_tensor = torch.tensor(Y_test_df.values)
+
+
+	dataset = TensorDataset(X_train_tensor, Y_train_tensor)
+
+	iterable_training_data = DataLoader(dataset, batch_size = 32)
+
+
+
+	tensors_and_iterable_training_data = [X_train_tensor, X_test_tensor, Y_train_tensor, Y_test_tensor, iterable_training_data]
+
 	##########################################################
 
 	return tensors_and_iterable_training_data
