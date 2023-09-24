@@ -77,9 +77,14 @@ def data_preprocessing(task_1a_dataframe):
 
 	#################	ADD YOUR CODE HERE	##################
 	
-	encoded_dataframe = pandas.get_dummies(task_1a_dataframe, columns=["Education", "City", "Gender", "EverBenched"])
+	encoded_dataframe = pandas.get_dummies(task_1a_dataframe, columns=["Education", "City"])
 	
 	encoded_dataframe['JoiningYear'] = task_1a_dataframe['JoiningYear'] - 2000
+
+	encoded_dataframe['Gender']= encoded_dataframe['Gender'].map({'Male': 1, 'Female': 0})
+	encoded_dataframe['EverBenched']= encoded_dataframe['EverBenched'].map({'Yes': 1, 'No': 0})
+
+	encoded_dataframe.dropna().drop_duplicates()
 
 
 
@@ -165,9 +170,9 @@ def load_as_tensors(features_and_targets):
 	
 	split = int(features_and_targets[0].shape[0] * 0.8)
 	
-	X_train_df, X_test_df = features_and_targets[0].iloc[: split], features_and_targets[0].iloc[split:]
+	X_train_df, X_test_df = features_and_targets[0][:split], features_and_targets[0][split:]
 
-	Y_train_df, Y_test_df = features_and_targets[1].iloc[: split], features_and_targets[1].iloc[split:]
+	Y_train_df, Y_test_df = features_and_targets[1][:split], features_and_targets[1][split:]
 
 	X_train_tensor = torch.tensor(X_train_df.values)
 	X_test_tensor = torch.tensor(X_test_df.values)
