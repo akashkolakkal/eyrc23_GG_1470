@@ -84,7 +84,7 @@ def data_preprocessing(task_1a_dataframe):
 	encoded_dataframe['Gender']= encoded_dataframe['Gender'].map({'Male': 1, 'Female': 0})
 	encoded_dataframe['EverBenched']= encoded_dataframe['EverBenched'].map({'Yes': 1, 'No': 0})
 
-	encoded_dataframe.dropna().drop_duplicates()
+	encoded_dataframe = encoded_dataframe.dropna().drop_duplicates()
 
 
 
@@ -122,8 +122,8 @@ def identify_features_and_targets(encoded_dataframe):
 
 	encoded_dataframe = encoded_dataframe.sample(frac = 1, random_state = 3)
 
-	target_col = encoded_dataframe['LeaveOrNot']
-	feature_cols = encoded_dataframe.drop('LeaveOrNot', axis = 1)
+	target_col = encoded_dataframe['PaymentTier']
+	feature_cols = encoded_dataframe.drop('PaymentTier', axis = 1)
 
 	features_and_targets = [feature_cols, target_col]
 	
@@ -174,15 +174,15 @@ def load_as_tensors(features_and_targets):
 
 	Y_train_df, Y_test_df = features_and_targets[1][:split], features_and_targets[1][split:]
 
-	X_train_tensor = torch.tensor(X_train_df.values)
-	X_test_tensor = torch.tensor(X_test_df.values)
-	Y_train_tensor = torch.tensor(Y_train_df.values)
-	Y_test_tensor = torch.tensor(Y_test_df.values)
+	X_train_tensor = torch.tensor(X_train_df.values, dtype=torch.float32)
+	X_test_tensor = torch.tensor(X_test_df.values, dtype=torch.float32)
+	Y_train_tensor = torch.tensor(Y_train_df.values, dtype=torch.float32).unsqueeze(1)
+	Y_test_tensor = torch.tensor(Y_test_df.values, dtype=torch.float32).unsqueeze(1)
 
 
 	dataset = TensorDataset(X_train_tensor, Y_train_tensor)
 
-	iterable_training_data = DataLoader(dataset, batch_size = 32)
+	iterable_training_data = DataLoader(dataset, batch_size = 32, drop_last=True)
 
 
 
