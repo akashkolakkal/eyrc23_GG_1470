@@ -15,7 +15,7 @@
 *****************************************************************************************
 '''
 
-# Team ID:			gg_1470
+# Team ID:			GG_1470
 # Author List:		Akash Kolakal, Anikesh Kulal, Parth jain, Keshav Jha
 # Filename:			task_1a.py
 # Functions:	    [`ideantify_features_and_targets`, `load_as_tensors`,
@@ -34,12 +34,15 @@ You are NOT allowed to import any other libraries. It will
 cause errors while running the executable
 '''
 from torch.utils.data import TensorDataset, DataLoader
+import torch.nn.functional as F
 
 ##############################################################
 
 ################# ADD UTILITY FUNCTIONS HERE #################
 
-
+def min_max_scaling(df: pandas.DataFrame):
+  scaled_df = (df - df.min())/(df.max() - df.min())
+  return scaled_df
 
 
 
@@ -77,15 +80,23 @@ def data_preprocessing(task_1a_dataframe):
 
 	#################	ADD YOUR CODE HERE	##################
 	
-	encoded_dataframe = pandas.get_dummies(task_1a_dataframe, columns=["Education", "City"])
 	
-	encoded_dataframe['JoiningYear'] = task_1a_dataframe['JoiningYear'] - 2000
-
+	encoded_dataframe = task_1a_dataframe.copy()
+	encoded_dataframe = pandas.get_dummies(task_1a_dataframe, columns=["City"])
 	encoded_dataframe['Gender']= encoded_dataframe['Gender'].map({'Male': 1, 'Female': 0})
 	encoded_dataframe['EverBenched']= encoded_dataframe['EverBenched'].map({'Yes': 1, 'No': 0})
 
+	encoded_dataframe['Education'] = encoded_dataframe['Education'].map({'Bachelors': 0, 'Masters': 1, 'PHD': 2})
+
+	bool_columns = encoded_dataframe.select_dtypes(include='bool').columns
+	encoded_dataframe[bool_columns] = encoded_dataframe[bool_columns].astype(int)
+
 	encoded_dataframe = encoded_dataframe.dropna().drop_duplicates()
 
+	encoded_dataframe = min_max_scaling(encoded_dataframe)
+
+	encoded_dataframe = encoded_dataframe.sample(frac= 1)
+	print(encoded_dataframe.info())
 
 
 	##########################################################
@@ -120,10 +131,8 @@ def identify_features_and_targets(encoded_dataframe):
 
 	#################	ADD YOUR CODE HERE	##################
 
-	encoded_dataframe = encoded_dataframe.sample(frac = 1, random_state = 3)
-
-	target_col = encoded_dataframe['PaymentTier']
-	feature_cols = encoded_dataframe.drop('PaymentTier', axis = 1)
+	target_col = encoded_dataframe['LeaveOrNot']
+	feature_cols = encoded_dataframe.drop('LeaveOrNot', axis = 1)
 
 	features_and_targets = [feature_cols, target_col]
 	
@@ -192,7 +201,7 @@ def load_as_tensors(features_and_targets):
 
 	return tensors_and_iterable_training_data
 
-class Salary_Predictor():
+class Salary_Predictor(torch.nn.Module):
 	'''
 	Purpose:
 	---
@@ -214,6 +223,13 @@ class Salary_Predictor():
 		Define the type and number of layers
 		'''
 		#######	ADD YOUR CODE HERE	#######
+
+		self.input_size = 10
+		self.l1 = torch.nn.Linear(self.input_size, 64)
+		self.relu = torch.nn.ReLU()
+		self.l2 = torch.nn.Linear(64, 32)
+		self.l3 = torch.nn.Linear(32, 1)
+		self.sigmoid = torch.nn.Sigmoid()
 		
 		###################################	
 
@@ -222,6 +238,14 @@ class Salary_Predictor():
 		Define the activation functions
 		'''
 		#######	ADD YOUR CODE HERE	#######
+
+
+		x = self.l1(x)
+		x = self.relu(x)
+		x = self.l2(x)
+		x = self.relu(x)
+		x = self.l3(x)
+		predicted_output = self.sigmoid(x)
 		
 		###################################
 
@@ -249,6 +273,8 @@ def model_loss_function():
 	loss_function = model_loss_function()
 	'''
 	#################	ADD YOUR CODE HERE	##################
+
+	loss_function = torch.nn.BCELoss()
 	
 	##########################################################
 	
@@ -276,6 +302,8 @@ def model_optimizer(model):
 	'''
 	#################	ADD YOUR CODE HERE	##################
 
+	optimizer = torch.optim.Adam(model.parameters(), lr=0.0001)
+
 	##########################################################
 
 	return optimizer
@@ -299,6 +327,8 @@ def model_number_of_epochs():
 	number_of_epochs = model_number_of_epochs()
 	'''
 	#################	ADD YOUR CODE HERE	##################
+
+	number_of_epochs = 1000
 
 	##########################################################
 
@@ -329,7 +359,20 @@ def training_function(model, number_of_epochs, tensors_and_iterable_training_dat
 
 	'''	
 	#################	ADD YOUR CODE HERE	##################
+
+	for epoch in range(number_of_epochs):
+		for inputs, targets in tensors_and_iterable_training_data[4]:
+			optimizer.zero_grad()
+
+			predictions = model(inputs)
+
+			loss = loss_function(predictions, targets)
+
+			loss.backward()
+			optimizer.step()
 	
+	trained_model = model
+		
 	##########################################################
 
 	return trained_model
@@ -358,6 +401,11 @@ def validation_function(trained_model, tensors_and_iterable_training_data):
 
 	'''	
 	#################	ADD YOUR CODE HERE	##################
+
+	with torch.no_grad():
+		predictions = trained_model(tensors_and_iterable_training_data[1])
+		correct = (predictions > 0.5) == tensors_and_iterable_training_data[3]
+		model_accuracy = correct.float().mean().item()
 
 	##########################################################
 
@@ -409,3 +457,4 @@ if __name__ == "__main__":
 	X_train_tensor = tensors_and_iterable_training_data[0]
 	x = X_train_tensor[0]
 	jitted_model = torch.jit.save(torch.jit.trace(model, (x)), "task_1a_trained_model.pth")
+	
