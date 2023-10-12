@@ -15,17 +15,17 @@
 *****************************************************************************************
 '''
 
-# Team ID:			gg_1470
-# Author List:		Akash Kolakal, Anikesh Kulal, Parth jain, Keshav Jha
+# Team ID:			GG_1470
+# Author List:		Akash Kolakkal, Anikesh Kulal, Parth jain, Keshav Jha
 # Filename:			task_1a.py
 # Functions:	    [`ideantify_features_and_targets`, `load_as_tensors`,
 # 					 `model_loss_function`, `model_optimizer`, `model_number_of_epochs`, `training_function`,
 # 					 `validation_functions` ]
 
 ####################### IMPORT MODULES #######################
-import pandas 
+import pandas
 import torch
-import numpy 
+import numpy as np
 ###################### Additional Imports ####################
 '''
 You can import any additional modules that you require from 
@@ -34,12 +34,21 @@ You are NOT allowed to import any other libraries. It will
 cause errors while running the executable
 '''
 from torch.utils.data import TensorDataset, DataLoader
+import torch.nn.functional as F
+from sklearn.preprocessing import StandardScaler
+from torch import nn
+import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
 
 ##############################################################
 
 ################# ADD UTILITY FUNCTIONS HERE #################
 
-
+def min_max_scaling(df: pandas.DataFrame):
+  scaled_df = (df - df.min())/(df.max() - df.min())
+  return scaled_df
 
 
 
@@ -76,16 +85,26 @@ def data_preprocessing(task_1a_dataframe):
 	'''
 
 	#################	ADD YOUR CODE HERE	##################
+
+
 	
-	encoded_dataframe = pandas.get_dummies(task_1a_dataframe, columns=["Education", "City"])
 	
-	encoded_dataframe['JoiningYear'] = task_1a_dataframe['JoiningYear'] - 2000
+	encoded_dataframe = task_1a_dataframe.copy()
+
 
 	encoded_dataframe['Gender']= encoded_dataframe['Gender'].map({'Male': 1, 'Female': 0})
-	encoded_dataframe['EverBenched']= encoded_dataframe['EverBenched'].map({'Yes': 1, 'No': 0})
 
-	encoded_dataframe.dropna().drop_duplicates()
+	encoded_dataframe['Education'] = encoded_dataframe['Education'].map({'Bachelors': 0, 'Masters': 1, 'PHD': 2})
 
+	bool_columns = encoded_dataframe.select_dtypes(include='bool').columns
+	encoded_dataframe[bool_columns] = encoded_dataframe[bool_columns].astype(int)
+
+	encoded_dataframe = encoded_dataframe.dropna().drop_duplicates()
+
+	encoded_dataframe = min_max_scaling(encoded_dataframe)
+
+	encoded_dataframe = encoded_dataframe.sample(frac= 1)
+	print(encoded_dataframe.info())
 
 
 	##########################################################
@@ -120,12 +139,13 @@ def identify_features_and_targets(encoded_dataframe):
 
 	#################	ADD YOUR CODE HERE	##################
 
-	encoded_dataframe = encoded_dataframe.sample(frac = 1, random_state = 3)
-
 	target_col = encoded_dataframe['LeaveOrNot']
 	feature_cols = encoded_dataframe.drop('LeaveOrNot', axis = 1)
 
+	feature_cols = pandas.DataFrame(StandardScaler().fit_transform(feature_cols))
+
 	features_and_targets = [feature_cols, target_col]
+	# print(target_col)
 	
 	##########################################################
 
@@ -168,31 +188,33 @@ def load_as_tensors(features_and_targets):
 
 	#################	ADD YOUR CODE HERE	##################
 	
-	split = int(features_and_targets[0].shape[0] * 0.8)
+	split = int(features_and_targets[0].shape[0] * 0.95)
 	
 	X_train_df, X_test_df = features_and_targets[0][:split], features_and_targets[0][split:]
 
 	Y_train_df, Y_test_df = features_and_targets[1][:split], features_and_targets[1][split:]
 
-	X_train_tensor = torch.tensor(X_train_df.values)
-	X_test_tensor = torch.tensor(X_test_df.values)
-	Y_train_tensor = torch.tensor(Y_train_df.values)
-	Y_test_tensor = torch.tensor(Y_test_df.values)
+	X_train_tensor = torch.tensor(X_train_df.values, dtype=torch.float32)
+	X_test_tensor = torch.tensor(X_test_df.values, dtype=torch.float32)
+	Y_train_tensor = torch.tensor(Y_train_df.values, dtype=torch.float32).unsqueeze(1)
+	Y_test_tensor = torch.tensor(Y_test_df.values, dtype=torch.float32).unsqueeze(1)
 
 
 	dataset = TensorDataset(X_train_tensor, Y_train_tensor)
 
-	iterable_training_data = DataLoader(dataset, batch_size = 32)
+	iterable_training_data = DataLoader(dataset, batch_size = 1)
 
 
 
 	tensors_and_iterable_training_data = [X_train_tensor, X_test_tensor, Y_train_tensor, Y_test_tensor, iterable_training_data]
 
+	print(Y_test_tensor.shape)
+
 	##########################################################
 
 	return tensors_and_iterable_training_data
 
-class Salary_Predictor():
+class Salary_Predictor(torch.nn.Module):
 	'''
 	Purpose:
 	---
@@ -214,6 +236,12 @@ class Salary_Predictor():
 		Define the type and number of layers
 		'''
 		#######	ADD YOUR CODE HERE	#######
+		self.linear1 = nn.Linear(6, 100)
+		self.linear2 = nn.Linear(100, 50)
+		self.linear3 = nn.Linear(50, 1)
+		self.relu = nn.ReLU()
+		self.sigmoid = nn.Sigmoid()
+
 		
 		###################################	
 
@@ -222,6 +250,19 @@ class Salary_Predictor():
 		Define the activation functions
 		'''
 		#######	ADD YOUR CODE HERE	#######
+
+
+		x = self.l1(x)
+		x = self.relu(x)
+		x = self.l2(x)
+		x = self.relu(x)
+		x = self.l3(x)
+		predicted_output = self.sigmoid(x)
+		
+		x = self.relu(self.linear1(x))
+		x = self.relu(self.linear2(x))
+		x = self.linear3(x)
+		predicted_output = self.sigmoid(x)
 		
 		###################################
 
@@ -249,6 +290,8 @@ def model_loss_function():
 	loss_function = model_loss_function()
 	'''
 	#################	ADD YOUR CODE HERE	##################
+
+	loss_function = torch.nn.BCELoss()
 	
 	##########################################################
 	
@@ -276,6 +319,8 @@ def model_optimizer(model):
 	'''
 	#################	ADD YOUR CODE HERE	##################
 
+	optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
+
 	##########################################################
 
 	return optimizer
@@ -299,6 +344,8 @@ def model_number_of_epochs():
 	number_of_epochs = model_number_of_epochs()
 	'''
 	#################	ADD YOUR CODE HERE	##################
+
+	number_of_epochs = 100
 
 	##########################################################
 
@@ -329,7 +376,25 @@ def training_function(model, number_of_epochs, tensors_and_iterable_training_dat
 
 	'''	
 	#################	ADD YOUR CODE HERE	##################
+
+	for epoch in range(number_of_epochs):
+		for inputs, targets in tensors_and_iterable_training_data[4]:
+			optimizer.zero_grad()
+
+			predictions = model(inputs)
+
+			loss = loss_function(predictions, targets)
+
+			loss.backward()
+			optimizer.step()
+		
+		if epoch % 10 == 0:
+			print(f'Epoch {epoch} / {number_of_epochs} : Loss = {loss.item()}')
+			
 	
+	trained_model = model
+	print("Training Complete")
+		
 	##########################################################
 
 	return trained_model
@@ -358,6 +423,11 @@ def validation_function(trained_model, tensors_and_iterable_training_data):
 
 	'''	
 	#################	ADD YOUR CODE HERE	##################
+
+	with torch.no_grad():
+		predictions = trained_model(tensors_and_iterable_training_data[1])
+		correct = (predictions > 0.5) == tensors_and_iterable_training_data[3]
+		model_accuracy = correct.float().mean().item()
 
 	##########################################################
 
