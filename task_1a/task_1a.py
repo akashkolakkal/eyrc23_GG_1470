@@ -479,3 +479,4 @@ if __name__ == "__main__":
 	X_train_tensor = tensors_and_iterable_training_data[0]
 	x = X_train_tensor[0]
 	jitted_model = torch.jit.save(torch.jit.trace(model, (x)), "task_1a_trained_model.pth")
+	
