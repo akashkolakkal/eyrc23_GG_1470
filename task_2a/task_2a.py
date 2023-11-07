@@ -15,8 +15,8 @@
 *****************************************************************************************
 '''
 
-# Team ID:			GG_1470
-# Author List:		Akash Kolakkal , Parth Jain , Anikesh Kulal , Keshav Jha
+# Team ID:			1470
+# Author List:		Akash Kolakal, Parth Jain, Anikesh Kulal, Keshav Jha
 # Filename:			task_2a.py
 # Functions:		detect_ArUco_details
 # 					get_center, get_angle
@@ -139,37 +139,6 @@ def detect_ArUco_details(image):
 
     
     
-
-   # Initialize dictionaries to store ArUco details
-    ArUco_details_dict = {}
-    ArUco_corners = {}
-
-    # Define the ArUco dictionary
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
-
-    # Detect markers in the image
-    corners, ids, _ = aruco.detectMarkers(image, aruco_dict)
-
-    if ids is not None:
-        for i in range(len(ids)):
-            marker_id = ids[i][0]
-            marker_corners = corners[i][0]
-
-            # Calculate the center of the marker
-            center_x = int((marker_corners[:, 0].sum()) / 4)
-            center_y = int((marker_corners[:, 1].sum()) / 4)
-
-            # Calculate the angle w.r.t. the vertical
-            v1 = np.array([0, 1])
-            v2 = np.array([marker_corners[0][0] - marker_corners[3][0], marker_corners[0][1] - marker_corners[3][1])
-            angle = int(np.degrees(np.arccos(np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))))
-
-            # Add details to dictionaries
-            ArUco_details_dict[marker_id] = [[center_x, center_y], angle]
-            ArUco_corners[marker_id] = marker_corners.astype(float)
-
-    return
-
 
     ##################################################
     
