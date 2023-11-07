@@ -19,7 +19,7 @@
 # Author List:		Akash Kolakkal , Parth Jain , Anikesh Kulal , Keshav Jha
 # Filename:			task_2a.py
 # Functions:		detect_ArUco_details
-# 					[ Comma separated list of functions in this file ]
+# 					get_center, get_angle
 
 
 ####################### IMPORT MODULES #######################
@@ -34,6 +34,26 @@ import math
 ##############################################################
 
 ################# ADD UTILITY FUNCTIONS HERE #################
+
+def get_center(corners):
+    x = 0
+    y = 0
+
+    for i in corners:
+        x += i[0]
+        y += i[1]
+    
+    x = x/len(corners)
+    y = y/len(corners)
+
+    return [int(x),int(y)]
+
+
+def get_angle(center, corner):
+    x1, y1 = center
+    x2, y2 = corner
+    angle = math.degrees(math.atan2(x2 - x1, y2 - y1))
+    return int(angle)
 
 
 
@@ -99,6 +119,26 @@ def detect_ArUco_details(image):
     ArUco_corners = {}
     
     ##############	ADD YOUR CODE HERE	##############
+    # print(image.shape)
+
+    aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
+    parameters = aruco.DetectorParameters()
+
+    detector = aruco.ArucoDetector(aruco_dict, parameters)
+
+    corners, ids, rejected_img_points = detector.detectMarkers(image)
+
+
+    for i in range(len(ids)):
+        ArUco_corners[int(ids[i][0])] = corners[i][0]
+
+        center = get_center(ArUco_corners[ids[i][0]])
+
+        ArUco_details_dict[int(ids[i][0])] = [center, get_angle(ArUco_corners[ids[i][0]][0], ArUco_corners[ids[i][0]][3])]
+
+
+    
+    
 
    # Initialize dictionaries to store ArUco details
     ArUco_details_dict = {}
