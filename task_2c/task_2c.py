@@ -178,16 +178,15 @@ def classify_event(image):
 
     loaded_model.load_weights("/content/drive/MyDrive/Colab Notebooks/Task 2 B/50x50EffnetModel.h5")
 
-    for image in event_list:
-        class_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
+    class_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
 
-        image_resized = cv.resize(image, (img_height,img_width))
-        image = np.expand_dims(image_resized,axis=0)
+    image_resized = cv.resize(image, (img_height,img_width))
+    image = np.expand_dims(image_resized,axis=0)
 
-        pred = loaded_model.predict(image)
+    pred = loaded_model.predict(image)
 
-        output_class = class_names[np.argmax(pred)]
-        event = output_class
+    output_class = class_names[np.argmax(pred)]
+    event = output_class
 
 
 
