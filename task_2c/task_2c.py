@@ -37,6 +37,10 @@ import os
 You can import your required libraries here
 '''
 
+import tensorflow as tf
+from tensorflow.python.keras.layers import Dense, Flatten
+from keras.models import Sequential
+
 # DECLARING VARIABLES (DO NOT CHANGE/REMOVE THESE VARIABLES)
 arena_path = "arena.png"            # Path of generated arena image
 event_list = []
@@ -134,6 +138,42 @@ def classify_event(image):
     '''
     ADD YOUR CODE HERE
     '''
+
+    lass_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
+    
+    img_height = 50
+    img_width = 50
+
+    loaded_model = Sequential()
+
+    pretrained_model = tf.keras.applications.EfficientNetV2B3(
+    include_top=False,
+    input_shape=(img_height, img_width, 3),
+    pooling='avg',
+    classes=5,
+    weights='imagenet'
+    )
+
+    for layer in pretrained_model.layers:
+        layer.trainable = False
+
+    loaded_model.add(pretrained_model)
+    loaded_model.add(Flatten())
+    loaded_model.add(Dense(512, activation='relu'))
+    loaded_model.add(Dense(5, activation='softmax'))
+
+    loaded_model.load_weights("EfficientNetV2B3_model_weights.h5")
+    
+    image = cv2.imread(image)
+    image_resized = cv2.resize(image, (img_height,img_width))
+    image = np.expand_dims(image_resized,axis=0)
+    
+    pred = loaded_model.predict(image)
+
+    output_class = class_names[np.argmax(pred)]
+    event = output_class
+
+
     event = "variable to return the detected function"
     return event
 

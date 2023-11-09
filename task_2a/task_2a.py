@@ -16,7 +16,7 @@
 '''
 
 # Team ID:			1470
-# Author List:		Akash Kolakal, Parth Jain, Anikesh Kulal, Keshav Jha
+# Author List:		Akash Kolakkal, Parth Jain, Anikesh Kulal, Keshav Jha
 # Filename:			task_2a.py
 # Functions:		detect_ArUco_details
 # 					get_center, get_angle
