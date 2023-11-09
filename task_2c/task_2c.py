@@ -36,6 +36,9 @@ import os
 '''
 You can import your required libraries here
 '''
+import tensorflow as tf
+from tensorflow.python.keras.layers import Dense, Flatten
+from keras.models import Sequential
 
 # DECLARING VARIABLES (DO NOT CHANGE/REMOVE THESE VARIABLES)
 arena_path = "arena.png"            # Path of generated arena image
@@ -108,6 +111,24 @@ def event_identification(arena):        # NOTE: You can tweak this function in c
     ---
     event_list = event_identification(arena)
     '''
+    
+    pt1 = [159, 208, 120, 170]
+    pt2 = [146, 195, 335, 384]
+    pt3 = [465, 514, 336, 385]
+    pt4 = [155, 204, 598, 647]
+    pt5 = [461, 510, 469, 518]
+
+    pts = [pt1, pt2, pt3, pt4, pt5]
+
+    event_list = []
+
+    for i in pts:
+        x1, x2, y1, y2 = i
+
+        event = arena[y1:y2, x1:x2]
+        event_list.append(event)
+
+
     return event_list
 
 # Event Detection
@@ -134,7 +155,41 @@ def classify_event(image):
     '''
     ADD YOUR CODE HERE
     '''
-    event = "variable to return the detected function"
+    img_height = 50
+    img_width = 50
+    loaded_model = Sequential()
+
+    pretrained_model = tf.keras.applications.EfficientNetV2B3(
+    include_top=False,
+    input_shape=(img_height, img_width, 3),
+    pooling='avg',
+    classes=5,
+    weights='imagenet'
+    )
+
+    for layer in pretrained_model.layers:
+        layer.trainable = False
+
+    loaded_model.add(pretrained_model)
+    loaded_model.add(Flatten())
+    loaded_model.add(Dense(512, activation='relu'))
+    loaded_model.add(Dense(5, activation='softmax'))
+
+    loaded_model.load_weights("/content/drive/MyDrive/Colab Notebooks/Task 2 B/50x50EffnetModel.h5")
+
+    for image in event_list:
+        class_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
+
+        image_resized = cv.resize(image, (img_height,img_width))
+        image = np.expand_dims(image_resized,axis=0)
+
+        pred = loaded_model.predict(image)
+
+        output_class = class_names[np.argmax(pred)]
+        event = output_class
+
+
+
     return event
 
 # ADDITIONAL FUNCTIONS
