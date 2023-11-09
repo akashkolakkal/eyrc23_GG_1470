@@ -36,6 +36,7 @@ import os
 '''
 You can import your required libraries here
 '''
+
 import tensorflow as tf
 from tensorflow.python.keras.layers import Dense, Flatten
 from keras.models import Sequential
