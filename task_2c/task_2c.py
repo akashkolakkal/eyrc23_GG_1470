@@ -112,6 +112,24 @@ def event_identification(arena):        # NOTE: You can tweak this function in c
     ---
     event_list = event_identification(arena)
     '''
+    
+    pt1 = [159, 208, 120, 170]
+    pt2 = [146, 195, 335, 384]
+    pt3 = [465, 514, 336, 385]
+    pt4 = [155, 204, 598, 647]
+    pt5 = [461, 510, 469, 518]
+
+    pts = [pt1, pt2, pt3, pt4, pt5]
+
+    event_list = []
+
+    for i in pts:
+        x1, x2, y1, y2 = i
+
+        event = arena[y1:y2, x1:x2]
+        event_list.append(event)
+
+
     return event_list
 
 # Event Detection
@@ -138,12 +156,8 @@ def classify_event(image):
     '''
     ADD YOUR CODE HERE
     '''
-
-    lass_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
-    
     img_height = 50
     img_width = 50
-
     loaded_model = Sequential()
 
     pretrained_model = tf.keras.applications.EfficientNetV2B3(
@@ -162,19 +176,20 @@ def classify_event(image):
     loaded_model.add(Dense(512, activation='relu'))
     loaded_model.add(Dense(5, activation='softmax'))
 
-    loaded_model.load_weights("EfficientNetV2B3_model_weights.h5")
-    
-    image = cv2.imread(image)
-    image_resized = cv2.resize(image, (img_height,img_width))
+    loaded_model.load_weights("/content/drive/MyDrive/Colab Notebooks/Task 2 B/50x50EffnetModel.h5")
+
+    class_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
+
+    image_resized = cv.resize(image, (img_height,img_width))
     image = np.expand_dims(image_resized,axis=0)
-    
+
     pred = loaded_model.predict(image)
 
     output_class = class_names[np.argmax(pred)]
     event = output_class
 
 
-    event = "variable to return the detected function"
+
     return event
 
 # ADDITIONAL FUNCTIONS
