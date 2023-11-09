@@ -80,9 +80,7 @@ def write_csv(loc, csv_name):
     '''
     with open(csv_name, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-
-        csv_writer.writerow(['lat', 'lon'])
-
+        csv_writer.writerow(['lat', 'lon'])  
         csv_writer.writerow(loc)
 
 def tracker(ar_id, lat_lon):
@@ -99,10 +97,7 @@ def tracker(ar_id, lat_lon):
 
     if ar_id_str in lat_lon:
         lat, lon = lat_lon[ar_id_str]
-
-        with open('live_data.csv', 'a', newline='') as csvfile:
-            csv_writer = csv.writer(csvfile)
-            csv_writer.writerow([lat, lon])
+        write_csv([lat, lon], 'live_data.csv')
 
         coordinate = [lat, lon]
         return coordinate
