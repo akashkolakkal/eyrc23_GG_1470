@@ -112,12 +112,13 @@ def event_identification(arena):        # NOTE: You can tweak this function in c
     ---
     event_list = event_identification(arena)
     '''
-    
-    pt1 = [159, 208, 120, 170]
-    pt2 = [146, 195, 335, 384]
+
+
+    pt1 = [155, 204, 598, 647]
+    pt2 = [461, 510, 469, 518]
     pt3 = [465, 514, 336, 385]
-    pt4 = [155, 204, 598, 647]
-    pt5 = [461, 510, 469, 518]
+    pt4 = [146, 195, 335, 384]
+    pt5 = [159, 208, 120, 170]
 
     pts = [pt1, pt2, pt3, pt4, pt5]
 
@@ -176,7 +177,7 @@ def classify_event(image):
     loaded_model.add(Dense(512, activation='relu'))
     loaded_model.add(Dense(5, activation='softmax'))
 
-    loaded_model.load_weights("/content/drive/MyDrive/Colab Notebooks/Task 2 B/50x50EffnetModel.h5")
+    loaded_model.load_weights("model.h5")
 
     class_names = ['combat', 'destroyedbuilding', 'fire', 'humanitarianaid', 'militaryvehicles']
 
@@ -261,7 +262,7 @@ def main():
     ###################
 
     ##### Output #####
-    # output_function()
+    output_function()
     ##################
 
 if __name__ == '__main__':
