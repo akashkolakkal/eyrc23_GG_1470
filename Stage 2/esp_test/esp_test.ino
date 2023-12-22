@@ -1,10 +1,10 @@
 #include <WiFi.h>
 
 // WiFi credentials
-const char* ssid = "";                    //Enter your wifi hotspot ssid
-const char* password =  "";               //Enter your wifi hotspot password
+const char* ssid = "Kolakkal's";                    //Enter your wifi hotspot ssid
+const char* password =  "01149869";               //Enter your wifi hotspot password
 const uint16_t port = 8002;
-const char * host = "";                   //Enter the ip address of your laptop after connecting it to wifi hotspot
+const char * host = "110.226.176.115";                   //Enter the ip address of your laptop after connecting it to wifi hotspot
 
 // External peripherals 
 int buzzerPin = 15;

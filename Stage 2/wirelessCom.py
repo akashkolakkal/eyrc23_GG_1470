@@ -1,38 +1,51 @@
 import socket
-from time import sleep
-import signal		
-import sys		
+import signal
+import sys
+import threading
+import keyboard
 
 def signal_handler(sig, frame):
-    print('Clean-up !')
+    print('Clean-up!')
     cleanup()
     sys.exit(0)
 
 def cleanup():
     s.close()
-    print("cleanup done")
+    print("Cleanup done")
 
-ip = ""     #Enter IP address of laptop after connecting it to WIFI hotspot
+def send_data(direction):
+    conn.sendall(str.encode(direction))
+    data = conn.recv(1024)
+    print(data)
 
+def handle_input():
+    while True:
+        try:
+            event = keyboard.read_event(suppress=True)
+            if event.event_type == keyboard.KEY_DOWN:
+                key = event.name.upper()
+                if key in ["W", "A", "S", "D", "Q"]:
+                    send_data("1" if key == "W" else "2" if key == "S" else "3" if key == "A" else "4" if key == "D" else "5")
+        except KeyboardInterrupt:
+            break
 
-#We will be sending a simple counter which counts from 1 to 10 and then closes the socket
-counter = 1
+# Enter the IP address of the laptop after connecting it to the WIFI hotspot
+ip = "192.168.1.3"
 
-#To undeerstand the working of the code, visit https://docs.python.org/3/library/socket.html
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind((ip, 8002))
     s.listen()
     conn, addr = s.accept()
+
     with conn:
         print(f"Connected by {addr}")
-        while True:
-            data = conn.recv(1024)
-            print(counter)
-            print(data)
-            conn.sendall(str.encode(str(counter)))
-            counter += 1
-            sleep(1)
-            if counter == 10:
-                s.close()
-                break
+
+        # Create a thread to handle user input
+        input_thread = threading.Thread(target=handle_input)
+        input_thread.start()
+
+        # Wait for the input thread to finish
+        input_thread.join()
+
+        cleanup()
