@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.python.keras.layers import Dense, Flatten
 from keras.models import Sequential
+from utilities import get_arena
 
 ##############################################################
 
@@ -43,32 +44,27 @@ def plot_point(img, x, y, color=(0, 255, 255)):
 
 def classify_event(image, loaded_model) -> str:
 
-    class_names = ['combat', 'destroyed_buildings', 'fire', 'human_aid_rehabilitation', 'military_vehicles']
+    class_names = ['combat', 'destroyed_buildings', 'fire', 'human_aid_rehabilitation', 'military_vehicles', 'None']
     
     image = np.expand_dims(image,axis=0)
     pred = loaded_model.predict(image, verbose=0)
 
-    output_class = class_names[np.argmax(pred)]
-
-    if (pred.max() >= 0.5):
-        event = output_class
-    else:
-        event = "None"
+    event = class_names[np.argmax(pred)]
 
     return event
 
-def get_arena(img):
-    actual = np.float32([[474, 14], [1489, 0], [1517, 1038], [454, 1034]])
-    should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
+# def get_arena(img):
+#     actual = np.float32([[382, 47], [1362, 39], [1419, 1043], [345, 1075]])
+#     should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
 
-    img = cv2.rotate(img, cv2.ROTATE_180)
+#     img = cv2.rotate(img, cv2.ROTATE_180)
 
-    pers_M = cv2.getPerspectiveTransform(actual, should_be)
-    rows,cols,ch = img.shape
+#     pers_M = cv2.getPerspectiveTransform(actual, should_be)
+#     rows,cols,ch = img.shape
 
-    img = cv2.warpPerspective(img, pers_M, (cols,rows))
+#     img = cv2.warpPerspective(img, pers_M, (cols,rows))
 
-    return img[:, :1080]
+#     return img[:, :1080]
 
 def helper_arena():
     cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
@@ -133,7 +129,11 @@ def process_test_images(image):
 
     laplacian = np.uint8(np.absolute(laplacian))
 
-    image = cv2.addWeighted(image, 1.5, cv2.cvtColor(laplacian, cv2.COLOR_GRAY2BGR), -0.5, 0)
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    hsv[:, :, 1] = np.clip(hsv[:, :, 1] * 1.1, 0, 255)
+    image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+
+
     image = cv2.fastNlMeansDenoisingColored(image, h=5, templateWindowSize=2, searchWindowSize=25)
 
     image = cv2.resize(image, (80, 80))
@@ -199,7 +199,7 @@ def return_labels_dict():
     include_top=False,
     input_shape=(80, 80, 3),
     pooling='avg',
-    classes=5,
+    classes=6,
     weights='imagenet'
     )
     for layer in pretrained_model.layers:
@@ -210,10 +210,9 @@ def return_labels_dict():
     loaded_model.add(Dense(1024, activation='relu'))
     loaded_model.add(Dense(512, activation='relu'))
     loaded_model.add(Dense(512, activation='relu'))
-    loaded_model.add(Dense(5, activation='softmax'))
+    loaded_model.add(Dense(6, activation='softmax'))
 
-    loaded_model.load_weights("model_weights/task4_model_weights.h5")
-
+    loaded_model.load_weights("model_weights/vgg19_task5.h5")
 
     label_A = classify_event(img_A, loaded_model)
     label_B = classify_event(img_B, loaded_model)
@@ -237,11 +236,12 @@ def return_labels_dict():
     img = cv2.resize(img, (450, 450))
 
     cv2.imshow("Arena Feed", img)
-    cv2.waitkey(0)
+    cv2.waitKey(0)
     cap.release()
     cv2.destroyAllWindows()
 
     identified_labels = {"A": label_A, "B": label_B, "C": label_C, "D": label_D, "E": label_E}
+    print(identified_labels)
 ##################################################
     return identified_labels
 

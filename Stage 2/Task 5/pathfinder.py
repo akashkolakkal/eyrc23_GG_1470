@@ -222,6 +222,7 @@ def calculate_path(path):
     for i in range(len(path) - 1):
         start = path[i]
         end = path[i+1]
+        print(start, end)
         directions = dijkstra(start, end)
         directions, current_direction = convert_directions(directions, current_direction)
         for i in directions:
