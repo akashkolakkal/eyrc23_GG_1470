@@ -12,11 +12,13 @@ import keyboard
 
 
 conn = None
+stop_server = False
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+
 def start_server():
-    global conn
+    global conn, stop_server
     # Set the server address and port
     HOST = '192.168.102.163'  # The server's hostname or IP address
     PORT = 8002        # The port used by the server
@@ -25,25 +27,31 @@ def start_server():
     s.bind((HOST, PORT))
 
     # Listen for incoming connections
-    s.listen()
+    while not stop_server:
+        s.listen()
+    
 
-    print(f"Server started at {HOST}:{PORT}")
-    handle_connections()
+        print(f"Server started at {HOST}:{PORT}")
+
+        handle_connections()
+    
+    s.close()
 
 
 def handle_connections():
-    global conn
-    while True:
-        # Wait for a connection
+    global conn, stop_server
+
+    while not stop_server:
         conn, addr = s.accept()
         print('Connected by', addr)
         conn.sendall(b'Connection established. Hello from the server!')
 
         threading.Thread(target=handle_client, args=(conn,)).start()
+        
 
 
 def handle_client(conn):
-    while True:
+    while not stop_server:
         # Receive data from the client
         data = conn.recv(1024)
 
@@ -52,7 +60,7 @@ def handle_client(conn):
             break
 
         print('Received from client:', data.decode())
-        
+
         # conn.sendall(b'1')
         # print('Sending to client: 1')
         # # Here you can add your did_reach() condition
@@ -62,7 +70,6 @@ def handle_client(conn):
         #     if key:
         #         print('Sending to client: 1')
         #         conn.sendall(b'1')
-            
 
     # Close the connectionw
     conn.close()
@@ -90,24 +97,29 @@ def path_for_bot():
 
     print(event_priority)
 
-
-    while (len(event_priority) > 0):
+    while (min(event_priority) != 1000):
         min_index = event_priority.index(min(event_priority))
+
         if event_priority[min_index] != 1000:
             path.append(chr(min_index + 65))
-        event_priority.pop(min_index)
+            event_priority[min_index] = 1000
+
 
     path.append("S")
+    print(path)
 
     complete_path = calculate_path(path)
 
-    string_path = "p"
+    string_path = ""
     for i in complete_path:
         string_path += i
-    
-    if conn:
-        conn.sendall(string_path.encode())
-        print('Sending to client:', string_path)
+
+    sent = False
+    while(not sent):
+        if conn:
+            conn.sendall(string_path.encode())
+            print('Sending to client:', string_path)
+            sent = True
 
     cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
     cap.set(3, 1920)
@@ -123,15 +135,8 @@ def path_for_bot():
     path.pop(-1)
     path.pop(0)
 
-
     for _ in range(30):
         ret, frame = cap.read()
-    
-    #plot frame using pyplot
-    frame = get_arena(frame)
-    plt.imshow(frame)
-    plt.show()
-
 
     while True:
         ret, frame = cap.read()
@@ -146,8 +151,6 @@ def path_for_bot():
 
         lat, lon = None, None
 
-        
-        
         try:
             if (i % 10 == 0):
                 lat, lon = get_closest_id(ArUco_details_dict)
@@ -187,9 +190,7 @@ def path_for_bot():
 
 if __name__ == '__main__':
 
-    # SERVER
-
-    # start_server()
+    # keyboard.on_press_key('q', lambda _: stop_server = True)
 
     # ['destroed', 'fire', 'None', 'military', 'combat']
     thread1 = threading.Thread(target=start_server)

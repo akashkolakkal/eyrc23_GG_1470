@@ -95,9 +95,12 @@ def did_reach(center, event):
     return False
 
 
-def get_arena(img):
-    actual = np.float32([[382, 47], [1362, 39], [1419, 1043], [345, 1075]])
+def get_arena(img):    
+    
+    actual = np.float32([[777, 0], [1778, 21], [1794, 1019], [761, 1030]])
     should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
+
+    img = cv2.rotate(img, cv2.ROTATE_180)
 
     pers_M = cv2.getPerspectiveTransform(actual, should_be)
     rows, cols, ch = img.shape
