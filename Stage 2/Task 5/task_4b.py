@@ -19,22 +19,18 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def start_server():
     global conn, stop_server
-    # Set the server address and port
-    HOST = '192.168.102.163'  # The server's hostname or IP address
+    HOST = '192.168.166.163'  # The server's hostname or IP address
     PORT = 8002        # The port used by the server
 
-    # Bind the socket to address and port
     s.bind((HOST, PORT))
 
-    # Listen for incoming connections
     while not stop_server:
         s.listen()
-    
 
         print(f"Server started at {HOST}:{PORT}")
 
         handle_connections()
-    
+
     s.close()
 
 
@@ -44,44 +40,24 @@ def handle_connections():
     while not stop_server:
         conn, addr = s.accept()
         print('Connected by', addr)
-        conn.sendall(b'Connection established. Hello from the server!')
 
         threading.Thread(target=handle_client, args=(conn,)).start()
-        
 
 
 def handle_client(conn):
     while not stop_server:
-        # Receive data from the client
         data = conn.recv(1024)
-
-        # If no data is received, break the loop
         if not data:
             break
-
         print('Received from client:', data.decode())
-
-        # conn.sendall(b'1')
-        # print('Sending to client: 1')
-        # # Here you can add your did_reach() condition
-        # if keyboard.read_event('w'):
-        #     # Send data to the client
-        #     key = keyboard.read_event('w')
-        #     if key:
-        #         print('Sending to client: 1')
-        #         conn.sendall(b'1')
-
-    # Close the connectionw
     conn.close()
 
 
-def path_for_bot():
-    labels_dict = return_labels_dict()
+def calculate_path_string(labels_dict):
     priority_list = ['fire', 'destroyed_buildings',
                      'human_aid_rehabilitation', 'military_vehicles', 'combat']
     event_priority = []
     path = ["S"]
-
     temp = 0
 
     for label in labels_dict.values():
@@ -95,8 +71,6 @@ def path_for_bot():
         else:
             event_priority.append(1000)
 
-    print(event_priority)
-
     while (min(event_priority) != 1000):
         min_index = event_priority.index(min(event_priority))
 
@@ -104,22 +78,17 @@ def path_for_bot():
             path.append(chr(min_index + 65))
             event_priority[min_index] = 1000
 
-
     path.append("S")
     print(path)
 
     complete_path = calculate_path(path)
 
-    string_path = ""
-    for i in complete_path:
-        string_path += i
+    return complete_path, path[1:-2]
 
-    sent = False
-    while(not sent):
-        if conn:
-            conn.sendall(string_path.encode())
-            print('Sending to client:', string_path)
-            sent = True
+
+def path_for_bot():
+    labels_dict = return_labels_dict()
+    string_path, event_list = calculate_path_string(labels_dict)
 
     cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
     cap.set(3, 1920)
@@ -127,13 +96,12 @@ def path_for_bot():
     cap.set(cv2.CAP_PROP_FPS, 30)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 
+    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+    cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 1000)
+
     file_path = 'task_4b.csv'
-
-    # for live camera feed
-
     i = 0
-    path.pop(-1)
-    path.pop(0)
+    sent = False
 
     for _ in range(30):
         ret, frame = cap.read()
@@ -145,6 +113,12 @@ def path_for_bot():
             print("Failed to capture frame.")
             break
 
+        if not sent:
+            if conn:
+                conn.sendall(string_path.encode())
+                print('Sending to client:', string_path)
+                sent = True
+
         frame = get_arena(frame)
         ArUco_details_dict, ArUco_corners = detect_ArUco_details(frame)
         # frame = mark_ArUco_image(frame, ArUco_details_dict, ArUco_corners)
@@ -152,15 +126,17 @@ def path_for_bot():
         lat, lon = None, None
 
         try:
-            if (i % 10 == 0):
-                lat, lon = get_closest_id(ArUco_details_dict)
-
-            event = path[0]
+            
+            print(event_list)
+            event = event_list[0]
             if did_reach(ArUco_details_dict[100][0], event):
                 if conn:
                     print('Sending to client: 1')
                     conn.sendall(b'1')
-                path.pop(0)
+                event_list.pop(0)
+            
+            if (i % 10 == 0):
+                lat, lon = get_closest_id(ArUco_details_dict)
 
         except:
             pass
@@ -179,7 +155,7 @@ def path_for_bot():
 
         frame = cv2.resize(frame, (950, 950))
         cv2.imshow("ArUco Marker Detection", frame)
-        i += 1
+        i = (i % 10) + 1
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -190,7 +166,29 @@ def path_for_bot():
 
 if __name__ == '__main__':
 
-    # keyboard.on_press_key('q', lambda _: stop_server = True)
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap.set(3, 1920)
+    cap.set(4, 1080)
+    cap.set(cv2.CAP_PROP_FPS, 30)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+
+    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+
+    while True:
+        ret, frame = cap.read()
+        frame = get_arena(frame)
+
+        if not ret:
+            print("Failed to capture frame.")
+            break
+        
+        frame = cv2.resize(frame, (950, 950))
+        cv2.imshow("Live Feed", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
 
     # ['destroed', 'fire', 'None', 'military', 'combat']
     thread1 = threading.Thread(target=start_server)

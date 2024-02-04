@@ -18,11 +18,13 @@ def helper_arena():
     cap.set(cv2.CAP_PROP_FPS, 30)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 
+    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+    cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 100)
+
     for _ in range(30):
         ret, frame = cap.read()
 
     ret, frame = cap.read()
-    frame = cv2.rotate(frame, cv2.ROTATE_180)
 
     if not ret:
         print("Failed to capture frame.")
@@ -36,7 +38,7 @@ def helper_arena():
     plt.axis("off")
     plt.show()
 
-    actual = np.float32([[777, 0], [1778, 21], [1794, 1019], [761, 1030]])
+    actual = np.float32([[740, 10], [1760, 37], [1754, 1065], [705, 1043]])
 
 
 if __name__ == "__main__":

@@ -180,18 +180,20 @@ def return_labels_dict():
 
     img = get_arena(frame)
 
-    y1, x1 = 235, 929
-    y2, x2 = 708, 727
-    y3, x3 = 716, 521
-    y4, x4 = 222, 519
-    y5, x5 = 242, 185
+    y1, x1 = 237, 931
+    y2, x2 = 710, 729
+    y3, x3 = 718, 523
+    y4, x4 = 224, 521
+    y5, x5 = 244, 187
+
+    #use py plot to plot the 5 images as subplots
 
 
-    img_A = process_test_images(img[x1: x1 + 70, y1: y1 + 70])
-    img_B = process_test_images(img[x2: x2 + 70, y2: y2 + 70])
-    img_C = process_test_images(img[x3: x3 + 70, y3: y3 + 70])
-    img_D = process_test_images(img[x4: x4 + 70, y4: y4 + 70])
-    img_E = process_test_images(img[x5: x5 + 70, y5: y5 + 70])
+    img_A = process_test_images(img[x1: x1 + 80, y1: y1 + 80])
+    img_B = process_test_images(img[x2: x2 + 80, y2: y2 + 80])
+    img_C = process_test_images(img[x3: x3 + 80, y3: y3 + 80])
+    img_D = process_test_images(img[x4: x4 + 80, y4: y4 + 80])
+    img_E = process_test_images(img[x5: x5 + 80, y5: y5 + 80])
 
 
     loaded_model = Sequential()
@@ -227,11 +229,17 @@ def return_labels_dict():
     cv2.rectangle(img, (y4, x4), (y4 + 80, x4 + 80), (0, 255, 0), 5)
     cv2.rectangle(img, (y5, x5), (y5 + 80, x5 + 80), (0, 255, 0), 5)
 
-    cv2.putText(img, label_A, (y1, x1 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(img, label_B, (y2 - 30, x2 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(img, label_C, (y3, x3 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(img, label_D, (y4, x4 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.putText(img, label_E, (y5, x5 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    if label_A != "None":
+        cv2.putText(img, label_A, (y1, x1 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    if label_B != "None":
+        cv2.putText(img, label_B, (y2-30, x2-20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    if label_C != "None":
+        cv2.putText(img, label_C, (y3, x3 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    if label_D != "None":
+        cv2.putText(img, label_D, (y4, x4 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    if label_E != "None":
+        cv2.putText(img, label_E, (y5, x5 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    
 
     img = cv2.resize(img, (450, 450))
 

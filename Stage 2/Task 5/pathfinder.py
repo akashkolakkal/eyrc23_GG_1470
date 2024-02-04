@@ -128,7 +128,7 @@ def convert_directions(direction_dict, facing):
     path = list(direction_dict.keys())
     directions = list(direction_dict.values())
     all_directions = []
-    relative_instructions = []
+    relative_instructions = ""
 
     for i in range(len(path)):
         all_directions.append(relative_directions[current_direction][directions[i]])
@@ -138,7 +138,7 @@ def convert_directions(direction_dict, facing):
         if not_a_node(path[i])   and i != 0:
             continue
         else:
-            relative_instructions.append(all_directions[i])
+            relative_instructions += all_directions[i]
     
 
     return relative_instructions, current_direction
@@ -217,23 +217,36 @@ def dijkstra(start_index, end_index):
 
 def calculate_path(path):
     current_direction = "U"
-    relative_path = []
+    relative_path_complete = ""
     
     for i in range(len(path) - 1):
         start = path[i]
         end = path[i+1]
         print(start, end)
         directions = dijkstra(start, end)
-        directions, current_direction = convert_directions(directions, current_direction)
-        for i in directions:
-            relative_path.append(i)
+        relative_directions, current_direction = convert_directions(directions, current_direction)
+
+        relative_path_complete += relative_directions
+    
+    relative_path_complete = relative_path_complete[:-1] + 'E'
+    if path[-2] == 'A':
+        relative_path_complete += 'L'
+    
+    if path[1] == 'A':
+        relative_path_complete = 'R' + relative_path_complete[1:]
+    else:
+        relative_path_complete = 'S' + relative_path_complete[1:]
+    
+    relative_path_complete = 'F' + relative_path_complete
+    
     print("Path : " + str(path))
-    print(relative_path)
-    return relative_path
+
+    print(relative_path_complete)
+    return relative_path_complete
 
 
     
 if __name__ == "__main__":
 
-    path = ['S', 'D', 'C', 'E', 'S']
+    path = ['S', 'A', 'D', 'C', 'B', 'S']
     relative_path = calculate_path(path)

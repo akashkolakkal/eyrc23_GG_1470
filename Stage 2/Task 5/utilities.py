@@ -76,31 +76,29 @@ def get_closest_id(ArUco_details_dict):
         csv_file.close()
 
     except:
-        print("ArUco marker 1 not detected.")
+        print("ArUco marker not detected.")
 
     return None, None
 
 
 def did_reach(center, event):
     events = {
-        "A": (300, 130),
+        "A": (300, 900),
         "B": (750, 670),
         "C": (750, 470),
-        "D": (270, 440),
+        "D": (300, 475),
         "E": (300, 130)
     }
 
-    if math.sqrt((center[0] - events[event][0])**2 + (center[1] - events[event][1])**2) <= 80:
+    if math.sqrt((center[0] - events[event][0])**2 + (center[1] - events[event][1])**2) <= 100:
         return True
     return False
 
 
 def get_arena(img):    
     
-    actual = np.float32([[777, 0], [1778, 21], [1794, 1019], [761, 1030]])
+    actual = np.float32([[740, 10], [1760, 37], [1754, 1065], [705, 1043]])
     should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
-
-    img = cv2.rotate(img, cv2.ROTATE_180)
 
     pers_M = cv2.getPerspectiveTransform(actual, should_be)
     rows, cols, ch = img.shape
