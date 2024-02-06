@@ -18,6 +18,7 @@ const char* password =  "anikeshkulal@gmail.com";               //Enter your wif
 const uint16_t port = 8002;
 const char * host = "192.168.166.163";
 bool recieved = false;
+bool didReachEvent = false;
 
 WiFiClient client;
 
@@ -105,7 +106,12 @@ void loop() {
       //   if (irLeft == HIGH && irRight == HIGH ) nodeDetected(irLeftSide, irLeft,  irRight, irRightSide);
       // }
 
-      if (irLeft == HIGH && irRight == HIGH && (irLeftSide == HIGH || irRightSide == HIGH)) nodeDetected(irLeftSide, irLeft,  irRight, irRightSide);
+      if (irLeft == HIGH && irRight == HIGH) {
+        delay(30);
+        irLeft = digitalRead(irPinLeft);
+        irRight = digitalRead(irPinRight);
+        if (irLeft == HIGH && irRight == HIGH ) nodeDetected(irLeftSide, irLeft,  irRight, irRightSide);
+      }
       else if (irLeft == HIGH && irRight == LOW) moveLeft();
       else if (irLeft == LOW && irRight == HIGH) moveRight();
       // else if ((irLeft == HIGH && irRight == LOW) || (irLeftSide == LOW && irRightSide == HIGH)) moveLeft();
@@ -121,6 +127,7 @@ void nodeDetected(int irleftSide, int irleft, int irRight, int irRightSide) {
   char step = steps[i];
   i++;
   float endTrackDuration = 1.5;
+  float eventReachDuration = 2.5;
 
 
   unsigned long startTime = millis();
@@ -186,6 +193,19 @@ void nodeDetected(int irleftSide, int irleft, int irRight, int irRightSide) {
       moveForward();
       delay(225);
       break;
+  }
+
+  if (steps[i + 1] == 'P') {
+    i++;
+    while ((millis() - startTime) / 1000.0 < eventReachDuration) {
+      int irLeft = digitalRead(irPinLeft);
+      int irRight = digitalRead(irPinRight);
+
+      if (irLeft == HIGH && irRight == LOW) moveLeft();
+      else if (irLeft == LOW && irRight == HIGH) moveRight();
+      else moveForward();
+    }
+    eventReached();
   }
 }
 

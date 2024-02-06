@@ -108,7 +108,7 @@ def did_reach(center, event):
 
 def get_arena(img):    
     
-    actual = np.float32([[740, 10], [1760, 37], [1754, 1065], [705, 1043]])
+    actual = np.float32([[605, 17], [1617, 9], [1645, 1053], [573, 1031]])
     should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
 
     pers_M = cv2.getPerspectiveTransform(actual, should_be)

@@ -28,7 +28,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 def start_server():
     global conn, stop_server
-    HOST = '192.168.166.163'  # The server's hostname or IP address
+    HOST = '192.168.166.228'  # The server's hostname or IP address
     PORT = 8002        # The port used by the server
 
     s.bind((HOST, PORT))
@@ -99,14 +99,14 @@ def path_for_bot():
     labels_dict = return_labels_dict()
     string_path, event_list = calculate_path_string(labels_dict)
 
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(2 , cv2.CAP_DSHOW)
     cap.set(3, 1920)
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_FPS, 30)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 
-    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
-    cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 5000)
+    # cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+    # cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 5000)
 
 
     file_path = 'task_4b.csv'
@@ -167,7 +167,7 @@ def path_for_bot():
 
                 csv_writer.writerows(data)
 
-        frame = cv2.resize(frame, (950, 950))
+        frame = cv2.resize(frame, (850, 850))
         cv2.imshow("ArUco Marker Detection", frame)
         i = (i % 10) + 1
 
@@ -180,14 +180,14 @@ def path_for_bot():
 
 if __name__ == '__main__':
 
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(2, cv2.CAP_DSHOW)
     cap.set(3, 1920)
     cap.set(4, 1080)
-    cap.set(cv2.CAP_PROP_FPS, 30)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+    # cap.set(cv2.CAP_PROP_FPS, 30)
+    # cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 
-    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
-    cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 5000)
+    # cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+    # cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 5000)
 
 
     while True:
@@ -198,7 +198,7 @@ if __name__ == '__main__':
             print("Failed to capture frame.")
             break
         
-        frame = cv2.resize(frame, (950, 950))
+        frame = cv2.resize(frame, (850, 850))
         cv2.imshow("Live Feed", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

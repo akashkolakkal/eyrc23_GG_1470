@@ -67,7 +67,7 @@ def classify_event(image, loaded_model) -> str:
 #     return img[:, :1080]
 
 def helper_arena():
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(2, cv2.CAP_DSHOW)
     cap.set(3, 1920)
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_FPS, 30)
@@ -130,11 +130,6 @@ def process_test_images(image):
 
     laplacian = np.uint8(np.absolute(laplacian))
 
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hsv[:, :, 1] = np.clip(hsv[:, :, 1] * 1.1, 0, 255)
-    image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-
-
     image = cv2.fastNlMeansDenoisingColored(image, h=5, templateWindowSize=2, searchWindowSize=25)
 
     image = cv2.resize(image, (80, 80))
@@ -165,7 +160,7 @@ def return_labels_dict():
 
 ############## ADD YOUR CODE HERE	##############
     
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(2, cv2.CAP_DSHOW)
     cap.set(3, 1920)
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_FPS, 30)
@@ -259,5 +254,6 @@ def return_labels_dict():
 
 ############### Main Function	#################
 if __name__ == "__main__":
-    identified_labels = return_labels_dict()
-    print(identified_labels)
+    # identified_labels = return_labels_dict()
+    # print(identified_labels)
+    test_images()
