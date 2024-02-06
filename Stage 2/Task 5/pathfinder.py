@@ -1,4 +1,14 @@
 '''
+# Team ID:          1470
+# Theme:            Geo Guide
+# Author List:      Parth Jain, Akash Kolakkal, Anikesh Kulal, Keshav Jha
+# Filename:         pathfinder.py
+# Functions:        get_weights, convert_directions, get_neighbor, dijkstra, calculate_path
+# Global variables: conn, stop_server, s
+'''
+
+
+'''
 0 0 0 0 0 
 0 0 0 0 0
 0 2 0 0 0
@@ -50,68 +60,6 @@ def get_weights():
     adjacency_list[1][2][3] = 1.75
 
     return adjacency_list
-
-def convert_directions2(direction_dict, facing):
-
-    def not_a_node(node):
-        return (node[0] == 0 or node[1] == 1 or node[1] == 3 or node == (4,4))
-
-    relative_directions = {
-        'U': {'U': 'F', 'R': 'R', 'D': 'B', 'L': 'L'},
-        'R': {'U': 'L', 'R': 'F', 'D': 'R', 'L': 'B'},
-        'D': {'U': 'B', 'R': 'L', 'D': 'F', 'L': 'R'},
-        'L': {'U': 'R', 'R': 'B', 'D': 'L', 'L': 'F'},
-    }
-
-    relative_path = []
-    current_direction = facing
-
-    path = list(direction_dict.keys())
-    directions = list(direction_dict.values())
-    new_path = []
-
-    for i in range(len(path)):
-        if (not_a_node(path[i]) or path[i] in [(0,0), (0,4), (4,4)]) and i != 0:
-            if directions[i] != directions[i-1]:
-                continue
-            else:
-                new_path.append(path[i])
-        else:
-            new_path.append(path[i])
-    
-    print(new_path)
-    
-
-    last_node = (10,10)
-
-    for current_node, direction in direction_dict.items():
-        
-        if current_node in new_path:
-            relative_path.append(relative_directions[current_direction][direction])
-            current_direction = direction
-        
-        if current_node == (0,0) and last_node == (0,1):
-            current_direction = 'D'
-        elif current_node == (0,0) and last_node == (1,0):
-            current_direction = 'R'
-        
-        elif current_node == (0,4) and last_node == (0,3):
-            current_direction = 'D'
-        elif current_node == (0,4) and last_node == (1,4):
-            current_direction = 'L'
-        
-        elif current_node == (4,4) and last_node == (4,3):
-            current_direction = 'U'
-        elif current_node == (4,4) and last_node == (3,4):
-            current_direction = 'L'
-        
-        if current_node in [(0,0), (0,4), (4,4)]:
-            relative_path.pop(-1)
-        
-        last_node = current_node
-
-
-    return relative_path, current_direction
 
 def convert_directions(direction_dict, facing):
     def not_a_node(node):

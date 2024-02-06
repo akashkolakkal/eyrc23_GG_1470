@@ -1,3 +1,13 @@
+'''
+# Team ID:          1470
+# Theme:            Geo Guide
+# Author List:      Parth Jain, Akash Kolakkal, Anikesh Kulal, Keshav Jha
+# Filename:         utilities.py
+# Functions:        get_center, get_angle, detect_ArUco_details, get_closest_id, did_reach, get_arena, mark_ArUco_image
+# Global variables: None
+'''
+
+
 import cv2
 import numpy as np
 import math
@@ -62,15 +72,16 @@ def get_closest_id(ArUco_details_dict):
         for id, details in ArUco_details_dict.items():
             dist = math.sqrt((details[0][0] - center[0])
                              ** 2 + (details[0][1] - center[1])**2)
-            if dist < closest_dist and id != 1:
+            if dist < closest_dist and id != 100:
                 closest_dist = dist
                 closest_id = id
-
+        print(closest_dist)
         for row in csv_reader:
             try:
                 if int(row[0]) == int(closest_id):
                     csv_file.close()
                     return row[1], row[2]
+                    
             except:
                 pass
         csv_file.close()

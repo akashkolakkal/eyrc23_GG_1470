@@ -44,7 +44,7 @@ def plot_point(img, x, y, color=(0, 255, 255)):
 
 def classify_event(image, loaded_model) -> str:
 
-    class_names = ['combat', 'destroyed_buildings', 'fire', 'human_aid_rehabilitation', 'military_vehicles', 'None']
+    class_names = ['Combat', 'Destroyed Buildings', 'Fire', 'Humanitarian Aid Rehabilitation', 'Military Vehicles', 'None']
     
     image = np.expand_dims(image,axis=0)
     pred = loaded_model.predict(image, verbose=0)
@@ -72,6 +72,7 @@ def helper_arena():
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_FPS, 30)
     cap.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc(*'MJPG'))
+
 
     for _ in range(30):
         ret, frame = cap.read()
@@ -169,6 +170,9 @@ def return_labels_dict():
     cap.set(4, 1080)
     cap.set(cv2.CAP_PROP_FPS, 30)
     cap.set(cv2.CAP_PROP_FOURCC,cv2.VideoWriter_fourcc(*'MJPG'))
+    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
+    cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 5000)
+    
 
     for _ in range(30):
         ret, frame = cap.read()
@@ -241,7 +245,7 @@ def return_labels_dict():
         cv2.putText(img, label_E, (y5, x5 - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     
 
-    img = cv2.resize(img, (450, 450))
+    img = cv2.resize(img, (950, 950))
 
     cv2.imshow("Arena Feed", img)
     cv2.waitKey(0)
