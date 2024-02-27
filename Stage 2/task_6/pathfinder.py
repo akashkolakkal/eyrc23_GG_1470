@@ -63,10 +63,15 @@ def get_weights():
 
     return adjacency_list
 
-def convert_directions(direction_dict, current_direction):
+def convert_directions(direction_dict: dict, current_direction: str):
     '''
     * Function Name:    convert_directions
-    * Input:            direction_dict -> list of instructions w.r.t. the arena
+    * Input:            direction_dict -> dictionary of the nodes to be visited in the path 
+    *                   and the instructions w.r.t. the arena's perspective.
+    *                   Example of direction_dict : 
+    *                     {(2, 0): 'U', 
+    *                     (3, 0): 'U', 
+    *                     (4, 0): 'U',}
     *                   current_direction -> current direction that the bot is facing
     * Output:           relative_instructions, current_direction
     * Logic:            This function takes in the direction_dict, which is a list of instructions with resprct to the arena 
@@ -75,7 +80,7 @@ def convert_directions(direction_dict, current_direction):
     * Example Call:     relative_instructions, current_direction = convert_directions(direction_dict, current_direction)
     '''
 
-    def not_a_node(node):
+    def not_a_node(node: tuple[int, int]):
         '''
         * Function Name:    not_a_node
         * Input:            node -> tuple of the node's position
@@ -118,7 +123,7 @@ def convert_directions(direction_dict, current_direction):
 
     return relative_instructions, current_direction
 
-def get_neighbor(node, direction):
+def get_neighbor(node: tuple[int, int], direction: int):
     '''
     * Function Name:    get_neighbor
     * Input:            node -> tuple of the node's position
@@ -139,11 +144,11 @@ def get_neighbor(node, direction):
         return (i, j - 1)
     return None
 
-def dijkstra(start_index, end_index):
+def dijkstra(start_position: str, end_position: str):
     '''
     * Function Name:    dijkstra
-    * Input:            start_index -> index of the start node
-    *                   end_index -> index of the end node
+    * Input:            start_position -> string of the current event
+    *                   end_position -> string of the next event
     * Output:           direction_dict -> dictionary containing the node's coordinates and directions 
     *                   to reach the next node in order to traverse the whole path
     *                   cost -> cost to reach the end node from the start node
@@ -165,8 +170,8 @@ def dijkstra(start_index, end_index):
         "S": (4,0)
     }
 
-    start = node_dict[start_index]
-    end = node_dict[end_index]
+    start = node_dict[start_position]
+    end = node_dict[end_position]
 
     # getting the weights of the edges of the nodes on the arena
     weights = get_weights()
@@ -208,7 +213,7 @@ def dijkstra(start_index, end_index):
     # print(path)
 
     # calculating the cost to reach the end node from the start node
-    cost = distances[node_dict[end_index]]
+    cost = distances[node_dict[end_position]]
 
     # converting the path to the directions to reach the end node by using the difference between the current and previous nodes
     direction_dict = {}
@@ -228,7 +233,7 @@ def dijkstra(start_index, end_index):
 
     return direction_dict, cost
 
-def calculate_path(path):
+def calculate_path(path: list[str]):
     '''
     * Function Name:    calculate_path
     * Input:            path -> list of events to be visited in order.
@@ -257,6 +262,10 @@ def calculate_path(path):
         directions, temp_cost = dijkstra(start, end)
         cost += temp_cost
 
+        # Example of directions dictionary : 
+        # {(2, 0): 'U', 
+        # (3, 0): 'U', 
+        # (4, 0): 'U',}
         relative_directions, current_direction = convert_directions(directions, current_direction)
 
         relative_path_complete += relative_directions
@@ -277,7 +286,7 @@ def calculate_path(path):
 
     return relative_path_complete, cost
 
-def get_minimum_cost_path(paths: list):
+def get_minimum_cost_path(paths: list[list[str]]):
     '''
     * Function Name:    get_minimum_cost_path
     * Input:            paths -> list of paths to be compared
@@ -353,6 +362,9 @@ def calculate_path_string(labels_dict: dict):
     # and adding the paths to the paths list, which will be used to calculate 
     # the path with the minimum cost
     for duplicate in duplicates:
+        # although permutaions increases the time complexity, 
+        # it is not an issue as the number of events is limited to 5
+        # And this makes the code very robust to handle any possible combination of events
         for p in permutations(path[duplicate[0]: duplicate[-1] + 1]):
             for i in paths:
                 temp_path = i[:duplicate[0]]
@@ -366,7 +378,6 @@ def calculate_path_string(labels_dict: dict):
 
     # print(relative_path, path[1:-1])
     return relative_path, path[1:-1]
-
 
 if __name__ == "__main__":
     # for test purpose
