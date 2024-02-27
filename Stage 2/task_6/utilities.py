@@ -60,7 +60,6 @@ def get_angle(center, corner):
     angle = math.degrees(math.atan2(x2 - x1, y2 - y1))      
     return int(angle)
 
-
 def detect_ArUco_details(image):
     '''
     * Function Name:    detect_ArUco_details
@@ -107,11 +106,10 @@ def did_reach(center, event):
         "E": (300, 130)
     }
     
-    # Checking if the bot has reached the event if yes, then return true else return false
+    # Checking if the bot's distance from the event is less than 60 pixels, then return true else return false
     if math.sqrt((center[0] - events[event][0])**2 + (center[1] - events[event][1])**2) <= 60:
         return True
     return False
-
 
 def get_arena(img):  
     '''
@@ -133,5 +131,3 @@ def get_arena(img):
 
     # Returning the top-down view of the 1080x1080 square view of the arena
     return img[:, :1080]
-
-
