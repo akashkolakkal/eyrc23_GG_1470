@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 import math
 from cv2 import aruco
+import matplotlib.pyplot as plt
 
 def calculate_distance(p1, p2):
     '''
@@ -60,7 +61,6 @@ def get_angle(center, corner):
     angle = math.degrees(math.atan2(x2 - x1, y2 - y1))      
     return int(angle)
 
-
 def detect_ArUco_details(image):
     '''
     * Function Name:    detect_ArUco_details
@@ -107,11 +107,10 @@ def did_reach(center, event):
         "E": (300, 130)
     }
     
-    # Checking if the bot has reached the event if yes, then return true else return false
+    # Checking if the bot's distance from the event is less than 60 pixels, then return true else return false
     if math.sqrt((center[0] - events[event][0])**2 + (center[1] - events[event][1])**2) <= 60:
         return True
     return False
-
 
 def get_arena(img):  
     '''
@@ -122,9 +121,13 @@ def get_arena(img):
     * Example Call:     get_arena(img)
     '''  
     # The actual and should be coordinates of the arena
+    # The actual coordinates are mannually extracted from the image taken by the camera
+    #
+    # We had tried to use the ArUco markers to get the perspective transform matrix, 
+    # but it was giving us inconsistent results due tho the change in angle of the overhead camera, 
+    # so we decided to mannually extract the corners of the arena
     actual = np.float32([[548, 22], [1568, 20], [1585, 1059], [523, 1039]])
     should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
-
 
     pers_M = cv2.getPerspectiveTransform(actual, should_be)         # Getting the perspective transform matrix
     rows, cols, ch = img.shape                                      # Getting the rows, columns, and channels of the image
@@ -135,3 +138,43 @@ def get_arena(img):
     return img[:, :1080]
 
 
+def helper_arena():
+    '''
+    * Function Name:    helper_arena
+    * Input:            None
+    * Output:           None
+    * Logic:            This is a helper function that we are using to mannually extract the corner coordinates of the arena
+    *                   NOT used in the main code, only used to get the coordinates of the arena
+    * Example Call:     helper_arena()
+    '''
+
+    # Capturing the image of the arena
+    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap.set(3, 1920)
+    cap.set(4, 1080)
+    cap.set(cv2.CAP_PROP_FPS, 30)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+
+    for _ in range(30):
+        ret, frame = cap.read()
+
+    ret, frame = cap.read()
+
+    if not ret:
+        print("Failed to capture frame.")
+
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+    fig, ax = plt.subplots()
+    ax.imshow(frame)
+
+    plt.axis("off")
+    plt.show()
+
+    # Manually extracting the coordinates of the arena here, which is then copied to the get_arena function
+    actual = np.float32([[548, 22], [1568, 20], [1585, 1059], [523, 1039]])
+
+
+if __name__ == "__main__":
+    # Only used to get the coordinates of the arena, not to be used in the main code
+    helper_arena()
