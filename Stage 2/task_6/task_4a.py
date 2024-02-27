@@ -34,10 +34,6 @@ from utilities import get_arena
 
 ################# ADD UTILITY FUNCTIONS HERE #################
 
-"""
-You are allowed to add any number of functions to this code.
-"""
-
 
 def plot_point(img, x, y, color=(0, 255, 255)):
     return cv2.circle(img, (x, y), radius=20, color=color, thickness=-1)
@@ -50,80 +46,6 @@ def classify_event(image, loaded_model) -> str:
 
     event = np.argmax(pred)
     return event
-
-# def get_arena(img):
-#     actual = np.float32([[382, 47], [1362, 39], [1419, 1043], [345, 1075]])
-#     should_be = np.float32([[0, 0], [1080, 0], [1080, 1080], [0, 1080]])
-
-#     img = cv2.rotate(img, cv2.ROTATE_180)
-
-#     pers_M = cv2.getPerspectiveTransform(actual, should_be)
-#     rows,cols,ch = img.shape
-
-#     img = cv2.warpPerspective(img, pers_M, (cols,rows))
-
-#     return img[:, :1080]
-
-
-def helper_arena():
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
-    cap.set(3, 1920)
-    cap.set(4, 1080)
-    cap.set(cv2.CAP_PROP_FPS, 30)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-
-    cap.set(cv2.CAP_PROP_AUTO_WB, 0)
-    cap.set(cv2.CAP_PROP_WB_TEMPERATURE, 1000)
-
-    for _ in range(30):
-        ret, frame = cap.read()
-
-    ret, frame = cap.read()
-
-    img = cv2.rotate(frame, cv2.ROTATE_180)
-    cv2.imshow("ArUco Marker Detection", img)
-    cv2.waitkey(0)
-
-    actual = np.float32([[474, 14], [1489, 0], [1517, 1038], [454, 1034]])
-
-
-def test_images():
-    img = cv2.imread('sample3.jpg')
-    img = get_arena(img)
-
-    plt.imshow(img)
-    plt.axis("off")
-    plt.show()
-
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-    plt.subplot(1, 5, 1)
-    y1, x1 = 235, 929
-    plt.imshow(img[x1: x1 + 70, y1: y1 + 70])
-    plt.axis("off")
-
-    plt.subplot(1, 5, 2)
-    y2, x2 = 708, 727
-    plt.imshow(img[x2: x2 + 70, y2: y2 + 70])
-    plt.axis("off")
-
-    plt.subplot(1, 5, 3)
-    y3, x3 = 716, 521
-    plt.imshow(img[x3: x3 + 70, y3: y3 + 70])
-    plt.axis("off")
-
-    plt.subplot(1, 5, 4)
-    y4, x4 = 222, 519
-    plt.imshow(img[x4: x4 + 70, y4: y4 + 70])
-    plt.axis("off")
-
-    plt.subplot(1, 5, 5)
-    y5, x5 = 242, 185
-    plt.imshow(img[x5: x5 + 70, y5: y5 + 70])
-    plt.axis("off")
-
-    plt.show()
-
 
 def process_test_images(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -181,7 +103,6 @@ def classify_and_label_events():
     ret, frame = cap.read()
 
     if not ret:
-        # print("Failed to capture frame.")
         pass
 
     img = get_arena(frame)
@@ -191,38 +112,6 @@ def classify_and_label_events():
     y3, x3 = 723, 528
     y4, x4 = 229, 526
     y5, x5 = 249, 192
-
-    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-
-    # plt.subplot(1, 5, 1)
-    # plt.imshow(img[x1: x1 + 70, y1: y1 + 70])
-    # plt.axis("off")
-
-    # plt.subplot(1, 5, 2)
-    # plt.imshow(img[x2: x2 + 70, y2: y2 + 70])
-    # plt.axis("off")
-
-    # plt.subplot(1, 5, 3)
-    # plt.imshow(img[x3: x3 + 70, y3: y3 + 70])
-    # plt.axis("off")
-
-    # plt.subplot(1, 5, 4)
-    # plt.imshow(img[x4: x4 + 70, y4: y4 + 70])
-    # plt.axis("off")
-
-    # plt.subplot(1, 5, 5)
-    # plt.imshow(img[x5: x5 + 70, y5: y5 + 70])
-    # plt.axis("off")
-
-    # plt.show()
-
-    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    # cv2.imwrite('dest_sample.jpg', img[x1: x1 + 70, y1: y1 + 70])
-    # cv2.imwrite('combat_sample.jpg', img[x2: x2 + 70, y2: y2 + 70])
-    # cv2.imwrite('combat_sample3.jpg', img[x3: x3 + 70, y3: y3 + 70])
-    # cv2.imwrite('fire_sample4.jpg', img[x4: x4 + 70, y4: y4 + 70])
-    # cv2.imwrite('mili_sample.jpg', img[x5: x5 + 70, y5: y5 + 70])
 
     img_A = process_test_images(img[x1: x1 + 70, y1: y1 + 70])
     img_B = process_test_images(img[x2: x2 + 70, y2: y2 + 70])
@@ -248,7 +137,7 @@ def classify_and_label_events():
     loaded_model.add(Dense(512, activation='relu'))
     loaded_model.add(Dense(6, activation='softmax'))
 
-    loaded_model.load_weights("model_weights/vgg19_task6(1).h5")
+    loaded_model.load_weights("model_weights/effnet_task6(2).h5")
 
     image_labels = ['combat', 'destroyed_buildings', 'fire', 'humanitarian_aid', 'military_vehicles', 'None']
     console_labels = ['Combat', 'Destroyed buildings', 'Fire', 'Humanitarian Aid and rehabilitation', 'Military Vehicles', 'None']

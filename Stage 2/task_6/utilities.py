@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import math
 from cv2 import aruco
-import csv
 
 def calculate_distance(p1, p2):
     return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
@@ -49,51 +48,6 @@ def detect_ArUco_details(image):
 
     return ArUco_details_dict, ArUco_corners
 
-
-def get_closest_id(ArUco_details_dict):
-    closest_dist = 10000000
-    closest_id = 42
-
-    try:
-        center = ArUco_details_dict[100][0]
-
-        csv_file = open('lat_long.csv', 'r')
-
-        csv_reader = csv.reader(csv_file)
-
-        ids = ArUco_details_dict.keys()
-
-        for row in csv_reader:
-            dist = math.sqrt((row[3] - center[0])** 2 + (row[4] - center[1])**2)
-
-            if dist < closest_dist:
-                closest_dist = dist
-                closest_id = row[0]
-        
-
-        # for id, details in ArUco_details_dict.items():
-        #     dist = math.sqrt((details[0][0] - center[0])
-        #                      ** 2 + (details[0][1] - center[1])**2)
-        #     if dist < closest_dist and id != 100:
-        #         closest_dist = dist
-        #         closest_id = id
-        
-        # print(closest_id)
-        
-        for row in csv_reader:
-            if int(row[0]) == int(closest_id):
-                csv_file.close()
-                return row[1], row[2]
-        
-        csv_file.close()
-
-    except:
-        # print("ArUco marker not detected.")
-        pass
-
-    return None, None
-
-
 def did_reach(center, event):
     events = {
         "A": (300, 900),
@@ -121,31 +75,3 @@ def get_arena(img):
     return img[:, :1080]
 
 
-def mark_ArUco_image(image, ArUco_details_dict, ArUco_corners):
-    for ids, details in ArUco_details_dict.items():
-        center = details[0]
-
-        cv2.circle(image, center, 5, (0, 0, 255), -1)
-
-        corner = ArUco_corners[int(ids)]
-        cv2.circle(image, (int(corner[0][0]), int(
-            corner[0][1])), 5, (50, 50, 50), -1)
-        cv2.circle(image, (int(corner[1][0]), int(
-            corner[1][1])), 5, (0, 255, 0), -1)
-        cv2.circle(image, (int(corner[2][0]), int(
-            corner[2][1])), 5, (128, 0, 255), -1)
-        cv2.circle(image, (int(corner[3][0]), int(
-            corner[3][1])), 5, (25, 255, 255), -1)
-
-        tl_tr_center_x = int((corner[0][0] + corner[1][0]) / 2)
-        tl_tr_center_y = int((corner[0][1] + corner[1][1]) / 2)
-
-        cv2.line(image, center, (tl_tr_center_x,
-                 tl_tr_center_y), (255, 0, 0), 5)
-        display_offset = int(
-            math.sqrt((tl_tr_center_x - center[0])**2 + (tl_tr_center_y - center[1])**2))
-        cv2.putText(image, str(ids), (center[0] + int(display_offset/2),
-                    center[1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
-        # angle = details[1]
-        # cv2.putText(image, str(angle), (center[0] - display_offset, center[1]), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
-    return image
